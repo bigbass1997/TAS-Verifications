@@ -15,7 +15,7 @@ local frame = 0;
 function update_bitfile(fhnd, prev_input)
     -- Order of buttons: RLDUTSBA
     local player = {0, 0};
-
+    
     for i = 1, 2 do
         if (prev_input[i].right == true)  then player[i] = OR(player[i],BIT(0)); end;
         if (prev_input[i].left == true)   then player[i] = OR(player[i],BIT(1)); end;
@@ -65,8 +65,19 @@ while (true) do
         -- We need to skip this frame, look for lag, then start watching for input
         if (movie.framecount() > 1) then
             -- We need to skip any lag frames and only output frames where the console is looking for input
+            
+            
             if (lagged == true) then
-                fhnd:write("");
+                if ( prev_input[1].A == true  and prev_input[1].B == true    and prev_input[1].select == true and prev_input[1].start == true and prev_input[1].up == true and prev_input[1].down == true and prev_input[1].left == true   and prev_input[1].right == false ) then
+                    print("Reset frame detected! #"..tostring(frame))
+                    frame = frame + 1;
+                    fhnd:write(string.char(254));
+                    fhnd:write(string.char(254));
+                    fhnd:write(string.char(0));
+                    fhnd:write(string.char(0));
+                else
+                    fhnd:write("");
+                end
             else
                 frame = frame + 1;
                 
@@ -93,7 +104,7 @@ while (true) do
 
             fhnd:close();
             
-            print("DONE");
+            print("DONE Frames written: "..tostring(frame));
             movie_loaded = false;
             frame = 0;
         end
